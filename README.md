@@ -1,7 +1,7 @@
 # Multimodal Heterogeneous Federated Learning for 6G mmWave Beam Prediction
 
 ## About This Project
-We worked on predicting the best mmWave communication beam using multiple types of sensor data - radar, camera, LiDAR, and GPS. The main idea is that in real 6G networks, different devices or units might have different sensors. We wanted to let them train together without sharing their raw data, which is where federated learning comes in.
+In this project, we worked on predicting the best mmWave communication beam using multiple types of sensor data - radar, camera, LiDAR, and GPS. The main idea is that in real 6G networks, different devices or units might have different sensors. We wanted to let them train together without sharing their raw data, which is where federated learning comes in.
 
 Instead of one device having all the data, we have 4 clients, each with a different sensor type. They train locally and only send the weights of a small shared network to the server. The server combines these weights using FedAvg and sends them back. No raw data ever leaves the client.
 
