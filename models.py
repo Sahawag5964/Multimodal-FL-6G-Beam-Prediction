@@ -1,6 +1,6 @@
 """
 models.py — Multimodal FL with Attention Fusion
-=================================================
+
 4 client encoders + Shared Head + Attention Fusion Network
 - Encoders  : private per client (never shared)
 - Head      : aggregated by FedAvg
@@ -15,13 +15,13 @@ EMBED_DIM   = 128
 NUM_CLASSES = 64
 
 
-# ── Attention Fusion Network ──────────────────────────────
-# Takes N embeddings → computes per-sample dynamic weights
-# → weighted sum → single fused embedding
+#  Attention Fusion Network 
+# Takes N embeddings - computes per-sample dynamic weights
+# - weighted sum - single fused embedding
 class AttentionFusion(nn.Module):
     def __init__(self, embed_dim=EMBED_DIM):
         super().__init__()
-        # Scorer: embedding → scalar attention score
+        # Scorer: embedding - scalar attention score
         self.scorer = nn.Sequential(
             nn.Linear(embed_dim, 64),
             nn.Tanh(),
@@ -47,7 +47,7 @@ class AttentionFusion(nn.Module):
         return fused, weights.squeeze(-1)          # also return weights for analysis
 
 
-# ── Shared Prediction Head ────────────────────────────────
+#  Shared Prediction Head 
 class PredictionHead(nn.Module):
     def __init__(self, in_dim=EMBED_DIM, num_classes=NUM_CLASSES):
         super().__init__()
@@ -60,7 +60,7 @@ class PredictionHead(nn.Module):
         return self.net(x)
 
 
-# ── Client 0 — Radar CNN ──────────────────────────────────
+#  Client 0 — Radar CNN 
 class RadarEncoder(nn.Module):
     def __init__(self, in_channels=1, embed_dim=EMBED_DIM):
         super().__init__()
@@ -83,7 +83,7 @@ class RadarEncoder(nn.Module):
         return self.fc(x)
 
 
-# ── Client 1 — Camera CNN ─────────────────────────────────
+# ─ Client 1 — Camera CNN 
 class CameraEncoder(nn.Module):
     def __init__(self, embed_dim=EMBED_DIM):
         super().__init__()
@@ -104,7 +104,7 @@ class CameraEncoder(nn.Module):
         return self.fc(x)
 
 
-# ── Client 2 — LiDAR MLP (lazy) ──────────────────────────
+# ─ Client 2 — LiDAR MLP (lazy) 
 class LidarEncoder(nn.Module):
     def __init__(self, embed_dim=EMBED_DIM):
         super().__init__()
@@ -125,7 +125,7 @@ class LidarEncoder(nn.Module):
         return self.net(x)
 
 
-# ── Client 3 — GPS MLP ────────────────────────────────────
+# ─ Client 3 — GPS MLP 
 class GpsEncoder(nn.Module):
     def __init__(self, input_dim=2, embed_dim=EMBED_DIM):
         super().__init__()
@@ -138,7 +138,7 @@ class GpsEncoder(nn.Module):
         return self.net(x)
 
 
-# ── Full Client Model (Encoder + Head) ────────────────────
+# ─ Full Client Model (Encoder + Head)
 class ClientModel(nn.Module):
     def __init__(self, encoder, head):
         super().__init__()
@@ -149,7 +149,7 @@ class ClientModel(nn.Module):
         return self.head(self.encoder(x))
 
 
-# ── Factory ───────────────────────────────────────────────
+# ─ Factory 
 ENCODERS = {
     0: RadarEncoder,
     1: CameraEncoder,
