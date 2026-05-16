@@ -1,6 +1,6 @@
 """
 Multimodal Dataset Loader — DeepSense 6G Scenario 9
-====================================================
+
 4 client modalities (NO mmWave as input):
   Client 0 : Radar     (unit1_radar)
   Client 1 : Camera    (unit1_rgb)
@@ -22,7 +22,7 @@ def _fix(root, rel_path):
     rel_path = re.sub(r'^[./\\]+', '', str(rel_path))
     return os.path.join(root, rel_path)
 
-# ── Client 0 — Radar ──────────────────────────────────────
+# ─ Client 0 — Radar 
 def load_radar(root, csv_path, label_col='unit1_beam_index',
                col='unit1_radar', fft_size=64, max_samples=None):
     df = pd.read_csv(csv_path).dropna(subset=[col, label_col])
@@ -41,7 +41,7 @@ def load_radar(root, csv_path, label_col='unit1_beam_index',
         labels.append(int(row[label_col]))
     return np.stack(samples), np.array(labels, dtype=np.int64)
 
-# ── Client 1 — Camera ─────────────────────────────────────
+# ─ Client 1 — Camera 
 def load_camera(root, csv_path, label_col='unit1_beam_index',
                 col='unit1_rgb', img_size=128, max_samples=None):
     df = pd.read_csv(csv_path).dropna(subset=[col, label_col])
@@ -56,7 +56,7 @@ def load_camera(root, csv_path, label_col='unit1_beam_index',
         labels.append(int(row[label_col]))
     return np.stack(samples), np.array(labels, dtype=np.int64)
 
-# ── Client 2 — LiDAR ──────────────────────────────────────
+# ─ Client 2 — LiDAR 
 def load_lidar(root, csv_path, label_col='unit1_beam_index',
                col='unit1_lidar', max_pts=512, max_samples=None):
     df = pd.read_csv(csv_path).dropna(subset=[col, label_col])
@@ -79,7 +79,7 @@ def load_lidar(root, csv_path, label_col='unit1_beam_index',
         labels.append(int(row[label_col]))
     return np.stack(samples), np.array(labels, dtype=np.int64)
 
-# ── Client 3 — GPS Calibrated ─────────────────────────────
+# ─ Client 3 — GPS Calibrated 
 def load_gps(root, csv_path, label_col='unit1_beam_index',
              col='unit2_loc_cal', max_samples=None):
     df = pd.read_csv(csv_path).dropna(subset=[col, label_col])
@@ -95,7 +95,7 @@ def load_gps(root, csv_path, label_col='unit1_beam_index',
     X = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-8)
     return X, np.array(labels, dtype=np.int64)
 
-# ── mmWave — FOR TESTING/COMPARISON ONLY (not a client) ───
+# - mmWave - FOR TESTING/COMPARISON ONLY (not a client) -
 def load_mmwave_test(root, csv_path, label_col='unit1_beam_index',
                      col='unit1_pwr_60ghz', max_samples=None):
     """
@@ -113,7 +113,7 @@ def load_mmwave_test(root, csv_path, label_col='unit1_beam_index',
         labels.append(int(row[label_col]))
     return np.stack(samples), np.array(labels, dtype=np.int64)
 
-# ── Public loader dict (4 clients only) ───────────────────
+# ─ Public loader dict (4 clients only) 
 LOADERS = {
     0: load_radar,
     1: load_camera,
