@@ -1,0 +1,204 @@
+Device  : cpu
+Clients : Radar | Camera | LiDAR | GPS
+Fusion  : Attention (Phase 1: FL, Phase 2: Attention fine-tune)
+
+=== Loading data ===
+
+[Client 0 — Radar]
+Radar: 100% 5964/5964 [03:43<00:00, 26.67it/s]
+  shape: (5964, 1, 256, 64)  labels: 2-63
+  Train 4174 | Val 895 | Test 895
+
+[Client 1 — Camera]
+Camera: 100% 5964/5964 [00:56<00:00, 105.60it/s]
+  shape: (5964, 3, 128, 128)  labels: 2-63
+  Train 4174 | Val 895 | Test 895
+
+[Client 2 — LiDAR]
+LiDAR: 100% 5964/5964 [00:02<00:00, 2590.08it/s]
+  shape: (5964, 1024)  labels: 2-63
+  Train 4174 | Val 895 | Test 895
+
+[Client 3 — GPS-Cal]
+GPS: 100% 5964/5964 [00:02<00:00, 2673.02it/s]
+  shape: (5964, 2)  labels: 2-63
+  Train 4174 | Val 895 | Test 895
+
+[mmWave — TEST ONLY]
+mmWave(test): 100% 5964/5964 [00:02<00:00, 2422.01it/s]
+
+=== Building models ===
+  Client 0 (Radar) params: 392,992
+  Client 1 (Camera) params: 729,536
+  Client 2 (LiDAR) params: 763,200
+  Client 3 (GPS-Cal) params: 99,200
+  AttentionFusion params: 8,321
+
+mmWave Baseline Top-5: 93.74%  (upper bound)
+
+=======================================================
+PHASE 1: Federated Training (30 rounds)
+=======================================================
+
+-- Round 1/30 --
+  Val  Top-1: 18.10%  Top-5: 66.15%
+  ✓ Best saved (18.10%)
+
+-- Round 2/30 --
+  Val  Top-1: 34.64%  Top-5: 80.89%
+  ✓ Best saved (34.64%)
+
+-- Round 3/30 --
+  Val  Top-1: 39.89%  Top-5: 85.36%
+  ✓ Best saved (39.89%)
+
+-- Round 4/30 --
+  Val  Top-1: 36.76%  Top-5: 89.50%
+
+-- Round 5/30 --
+  Val  Top-1: 44.36%  Top-5: 94.53%
+  ✓ Best saved (44.36%)
+
+-- Round 6/30 --
+  Val  Top-1: 44.69%  Top-5: 94.19%
+  ✓ Best saved (44.69%)
+
+-- Round 7/30 --
+  Val  Top-1: 43.91%  Top-5: 94.53%
+
+-- Round 8/30 --
+  Val  Top-1: 45.59%  Top-5: 95.64%
+  ✓ Best saved (45.59%)
+
+-- Round 9/30 --
+  Val  Top-1: 45.70%  Top-5: 94.86%
+  ✓ Best saved (45.70%)
+
+-- Round 10/30 --
+  Val  Top-1: 44.58%  Top-5: 94.53%
+
+-- Round 11/30 --
+  Val  Top-1: 45.59%  Top-5: 95.53%
+
+-- Round 12/30 --
+  Val  Top-1: 45.92%  Top-5: 95.08%
+  ✓ Best saved (45.92%)
+
+-- Round 13/30 --
+  Val  Top-1: 48.72%  Top-5: 95.75%
+  ✓ Best saved (48.72%)
+
+-- Round 14/30 --
+  Val  Top-1: 46.15%  Top-5: 94.64%
+
+-- Round 15/30 --
+  Val  Top-1: 46.15%  Top-5: 94.97%
+
+-- Round 16/30 --
+  Val  Top-1: 47.60%  Top-5: 95.20%
+
+-- Round 17/30 --
+  Val  Top-1: 44.36%  Top-5: 92.74%
+
+-- Round 18/30 --
+  Val  Top-1: 46.26%  Top-5: 93.85%
+
+-- Round 19/30 --
+  Val  Top-1: 45.14%  Top-5: 93.30%
+
+-- Round 20/30 --
+  Val  Top-1: 47.49%  Top-5: 93.85%
+
+-- Round 21/30 --
+  Val  Top-1: 48.04%  Top-5: 94.19%
+
+-- Round 22/30 --
+  Val  Top-1: 48.27%  Top-5: 93.18%
+
+-- Round 23/30 --
+  Val  Top-1: 46.37%  Top-5: 92.96%
+
+-- Round 24/30 --
+  Val  Top-1: 49.16%  Top-5: 94.75%
+  ✓ Best saved (49.16%)
+
+-- Round 25/30 --
+  Val  Top-1: 48.72%  Top-5: 94.08%
+
+-- Round 26/30 --
+  Val  Top-1: 50.39%  Top-5: 94.30%
+  ✓ Best saved (50.39%)
+
+-- Round 27/30 --
+  Val  Top-1: 47.49%  Top-5: 93.18%
+
+-- Round 28/30 --
+  Val  Top-1: 43.35%  Top-5: 90.50%
+
+-- Round 29/30 --
+  Val  Top-1: 48.60%  Top-5: 93.30%
+
+-- Round 30/30 --
+  Val  Top-1: 48.60%  Top-5: 92.96%
+
+Phase 1 Best Top-1: 50.39%
+
+=======================================================
+PHASE 2: Attention Fine-Tuning
+Server collects embeddings (NOT raw data) from all clients
+Trains AttentionFusion network on those embeddings
+=======================================================
+
+Collecting embeddings from clients (privacy-safe)...
+  Embeddings shape: torch.Size([895, 128]) per client
+  Labels shape    : torch.Size([895])
+
+Fine-tuning AttentionFusion for 10 epochs...
+  Epoch  1/10  Loss: 1.4677  Top-1: 53.97%  Top-5: 97.54%
+  ✓ Best attention saved (53.97%)
+  Epoch  2/10  Loss: 1.3248  Top-1: 54.75%  Top-5: 97.43%
+  ✓ Best attention saved (54.75%)
+  Epoch  3/10  Loss: 1.2898  Top-1: 55.42%  Top-5: 97.43%
+  ✓ Best attention saved (55.42%)
+  Epoch  4/10  Loss: 1.2665  Top-1: 55.87%  Top-5: 97.54%
+  ✓ Best attention saved (55.87%)
+  Epoch  5/10  Loss: 1.2506  Top-1: 55.75%  Top-5: 97.65%
+  Epoch  6/10  Loss: 1.2390  Top-1: 56.09%  Top-5: 97.65%
+  ✓ Best attention saved (56.09%)
+  Epoch  7/10  Loss: 1.2317  Top-1: 55.53%  Top-5: 97.65%
+  Epoch  8/10  Loss: 1.2248  Top-1: 55.64%  Top-5: 97.65%
+  Epoch  9/10  Loss: 1.2194  Top-1: 55.75%  Top-5: 97.65%
+  Epoch 10/10  Loss: 1.2145  Top-1: 55.87%  Top-5: 97.65%
+
+Phase 2 Best Attention Top-1: 56.09%
+
+=======================================================
+FINAL TEST RESULTS
+=======================================================
+
+Expected order: ALL(Attn) > subsets > singles > LiDAR
+
+Combination                         Top-1    Top-2    Top-3    Top-5
+-----------------------------------------------------------------
+ALL 4 — Attention Fusion           55.98%   78.10%   89.50%   96.98%
+Radar+Camera — Attention           55.75%   77.65%   88.94%   96.98%
+Camera+GPS — Attention             54.41%   76.65%   88.16%   96.87%
+Camera only                        54.53%   76.20%   88.16%   96.98%
+Radar only                         45.59%   65.81%   79.33%   93.74%
+GPS only                           29.72%   46.37%   56.42%   72.40%
+LiDAR only                         27.60%   42.68%   52.51%   69.83%
+
+mmWave Baseline (NOT input)         0.00%   43.80%   74.41%   93.74%
+
+=== Attention Weight Analysis ===
+(How much each modality contributes on average)
+
+  Radar     : avg attention = 0.3220  (32.2%)
+  Camera    : avg attention = 0.4889  (48.9%)
+  LiDAR     : avg attention = 0.0477  (4.8%)
+  GPS-Cal   : avg attention = 0.1413  (14.1%)
+Figure(1800x500)
+
+Plot saved -> ./saved_models/multimodal_FL/attention_fusion_results.png
+
+Done!
