@@ -1,6 +1,6 @@
 """
 Attention Fusion Multimodal FL
-================================
+
 Phase 1: Standard FL training (30 rounds) — each client trains locally
 Phase 2: Server-side attention fine-tuning (10 epochs)
          — server collects embeddings from all clients (not raw data)
@@ -19,9 +19,9 @@ import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
-# ─────────────────────────────────────────────────────────
+
 # CONFIG
-# ─────────────────────────────────────────────────────────
+
 ROOT_DIR        = '/content/Radar-aided-beam-prediction-main/scenario9_dev'
 CSV_FILE        = '/content/Radar-aided-beam-prediction-main/scenario9_dev/scenario9.csv'
 NUM_CLIENTS     = 4
@@ -49,9 +49,9 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 
 MODALITY_NAMES = {0:'Radar', 1:'Camera', 2:'LiDAR', 3:'GPS-Cal'}
 
-# ─────────────────────────────────────────────────────────
+
 # 1. LOAD DATA
-# ─────────────────────────────────────────────────────────
+
 print('\n=== Loading data ===')
 client_data = {}
 
@@ -74,9 +74,9 @@ X_mm, y_mm = load_mmwave_test(ROOT_DIR, CSV_FILE, max_samples=MAX_SAMPLES)
 _, X_tmp, _, y_tmp = train_test_split(X_mm, y_mm, test_size=0.3, random_state=SEED)
 _, X_mm_te, _, y_mm_te = train_test_split(X_tmp, y_tmp, test_size=0.5, random_state=SEED)
 
-# ─────────────────────────────────────────────────────────
+
 # 2. BUILD MODELS
-# ─────────────────────────────────────────────────────────
+
 global_head    = PredictionHead(num_classes=NUM_CLASSES).to(device)
 attention_net  = AttentionFusion(embed_dim=EMBED_DIM).to(device)
 client_models  = {}
@@ -94,9 +94,9 @@ for cid in range(NUM_CLIENTS):
 n_attn = sum(p.numel() for p in attention_net.parameters())
 print(f'  AttentionFusion params: {n_attn:,}')
 
-# ─────────────────────────────────────────────────────────
+
 # 3. HELPERS
-# ─────────────────────────────────────────────────────────
+
 criterion = nn.CrossEntropyLoss()
 
 def iterate(X, y, bs=BATCH_SIZE, shuffle=True):
@@ -132,9 +132,9 @@ def mmwave_baseline(X_mm, y_mm):
         accs.append(hit.float().mean().item() * 100)
     return accs
 
-# ─────────────────────────────────────────────────────────
+
 # 4. COLLECT EMBEDDINGS (no raw data shared — only embeddings)
-# ─────────────────────────────────────────────────────────
+
 def collect_embeddings(split='val'):
     """
     Each client computes embeddings from their local data.
@@ -160,9 +160,9 @@ def collect_embeddings(split='val'):
         all_embeddings.append(torch.cat(embs))  # (n, 128)
     return all_embeddings, y[:n]
 
-# ─────────────────────────────────────────────────────────
+
 # 5. ATTENTION FUSION PREDICTION
-# ─────────────────────────────────────────────────────────
+
 def predict_with_attention(embeddings_per_client, available_clients=None):
     """
     embeddings_per_client: list of (B, 128) tensors, one per client
@@ -256,9 +256,9 @@ def eval_simple(available_clients, split='val'):
         accs.append(hit.float().mean().item() * 100)
     return accs
 
-# ─────────────────────────────────────────────────────────
+
 # 6. PHASE 1: FEDERATED TRAINING
-# ─────────────────────────────────────────────────────────
+
 mm_base = mmwave_baseline(X_mm_te, y_mm_te)
 print(f'\nmmWave Baseline Top-5: {mm_base[4]:.2f}%  (upper bound)')
 
@@ -316,9 +316,9 @@ for cid in range(NUM_CLIENTS):
     client_models[cid].head.load_state_dict(
         global_head.state_dict())
 
-# ─────────────────────────────────────────────────────────
+
 # 7. PHASE 2: ATTENTION FINE-TUNING
-# ─────────────────────────────────────────────────────────
+
 print('\n' + '='*55)
 print('PHASE 2: Attention Fine-Tuning')
 print('Server collects embeddings (NOT raw data) from all clients')
@@ -405,9 +405,9 @@ for p in global_head.parameters():
 # Load best attention
 attention_net.load_state_dict(torch.load(attn_path))
 
-# ─────────────────────────────────────────────────────────
+
 # 8. FINAL TEST — attention vs simple vs individual
-# ─────────────────────────────────────────────────────────
+
 print('\n' + '='*55)
 print('FINAL TEST RESULTS')
 print('='*55)
@@ -448,9 +448,9 @@ for cid in range(NUM_CLIENTS):
     print(f'  {MODALITY_NAMES[cid]:10s}: avg attention = {avg_weights[cid]:.4f}  '
           f'({avg_weights[cid]*100:.1f}%)')
 
-# ─────────────────────────────────────────────────────────
+
 # 9. SAVE + PLOT
-# ─────────────────────────────────────────────────────────
+
 full_history = {'phase1': history, 'phase2': attn_history}
 with open(os.path.join(SAVE_DIR, 'history.json'), 'w') as f:
     json.dump(full_history, f, indent=2)
